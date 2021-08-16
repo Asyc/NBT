@@ -4,11 +4,81 @@
 
 namespace nbt {
 
-template <Type TYPE>
+template<Type TYPE>
 inline void typeCheck(Type type) {
   if (type != TYPE) {
     throw std::runtime_error("object type does not match requested type");
   }
+}
+
+Value::Value(Value&& rhs) noexcept : m_Type(Type::BYTE) {
+  operator=(std::move(rhs));
+}
+
+Value::Value(const Value& rhs) noexcept : m_Type(Type::BYTE) {
+  operator=(rhs);
+}
+
+Value& Value::operator=(const Value& rhs) noexcept {
+  if (this == &rhs) return *this;
+  switch (rhs.m_Type) {
+    case Type::BYTE:operator=(rhs.m_Byte);
+    break;
+    case Type::SHORT:operator=(rhs.m_Short);
+    break;
+    case Type::INT:operator=(rhs.m_Int);
+    break;
+    case Type::LONG:operator=(rhs.m_Long);
+    break;
+    case Type::FLOAT:operator=(rhs.m_Float);
+    break;
+    case Type::DOUBLE:operator=(rhs.m_Double);
+    break;
+    case Type::BYTE_ARRAY:operator=(rhs.m_ByteArray);
+    break;
+    case Type::STRING:operator=(rhs.m_String);
+    break;
+    case Type::LIST:operator=(rhs.m_List);
+    break;
+    case Type::COMPOUND:operator=(rhs.m_Compound);
+    break;
+    case Type::INT_ARRAY:operator=(rhs.m_IntArray);
+    break;
+    case Type::LONG_ARRAY:operator=(rhs.m_LongArray);
+    break;
+  }
+  return *this;
+}
+
+Value& Value::operator=(Value&& rhs) noexcept {
+  if (this == &rhs) return *this;
+  switch (rhs.m_Type) {
+    case Type::BYTE:operator=(rhs.m_Byte);
+    break;
+    case Type::SHORT:operator=(rhs.m_Short);
+    break;
+    case Type::INT:operator=(rhs.m_Int);
+    break;
+    case Type::LONG:operator=(rhs.m_Long);
+    break;
+    case Type::FLOAT:operator=(rhs.m_Float);
+    break;
+    case Type::DOUBLE:operator=(rhs.m_Double);
+    break;
+    case Type::BYTE_ARRAY:operator=(std::move(rhs.m_ByteArray));
+    break;
+    case Type::STRING:operator=(std::move(rhs.m_String));
+    break;
+    case Type::LIST:operator=(std::move(rhs.m_List));
+    break;
+    case Type::COMPOUND:operator=(std::move(rhs.m_Compound));
+    break;
+    case Type::INT_ARRAY:operator=(std::move(rhs.m_IntArray));
+    break;
+    case Type::LONG_ARRAY:operator=(std::move(rhs.m_LongArray));
+    break;
+  }
+  return *this;
 }
 
 Value::Value(int8_t value) {
@@ -250,11 +320,7 @@ const List& Value::getList() const {
 }
 
 Value& Compound::operator[](const char* key) {
-  return m_Values.find(key)->second;
-}
-
-const Value& Compound::operator[](const char* key) const {
-  return m_Values.find(key)->second;
+  return m_Values[key];
 }
 
 bool Compound::hasKey(const char* key) const {
@@ -277,6 +343,23 @@ const Value& List::operator[](size_t index) const {
 }
 
 void List::pushBack(Value value) {
+  m_Values.emplace_back(std::move(value));
+}
+
+List::Iterator List::begin() {
+  return m_Values.begin();
+}
+
+List::ConstIterator List::begin() const {
+  return m_Values.begin();
+}
+
+List::Iterator List::end() {
+  return m_Values.end();
+}
+
+List::ConstIterator List::end() const {
+  return m_Values.end();
 }
 
 size_t List::size() const {

@@ -28,7 +28,6 @@ class Value;
 class Compound {
  public:
   Value& operator[](const char*);
-  const Value& operator[](const char*) const;
 
   bool hasKey(const char*) const;
   bool remove(const char*);
@@ -38,17 +37,26 @@ class Compound {
 
 class List {
  public:
+  using Iterator = std::vector<Value>::iterator;
+  using ConstIterator = std::vector<Value>::const_iterator;
+
   Value& operator[](size_t index);
   const Value& operator[](size_t index) const;
 
   void pushBack(Value value);
 
   template <typename T>
-  void emplaceBack(T value) {
-    m_Values.template emplace_back(value);
+  void emplaceBack(T&& value) {
+    m_Values.template emplace_back(std::forward<T>(value));
   }
 
-  size_t size() const;
+  Iterator begin();
+  [[nodiscard]] ConstIterator begin() const;
+
+  Iterator end();
+  [[nodiscard]] ConstIterator end() const;
+
+  [[nodiscard]] size_t size() const;
  private:
   Type m_Type;
   std::vector<Value> m_Values;
@@ -56,6 +64,10 @@ class List {
 
 class Value {
  public:
+  Value() {}
+  Value(Value&& rhs) noexcept;
+  Value(const Value& rhs) noexcept;
+
   Value(int8_t);
   Value(int16_t);
   Value(int32_t);
@@ -69,6 +81,9 @@ class Value {
   Value(Compound compound);
   Value(List list);
   ~Value();
+
+  Value& operator=(const Value& rhs) noexcept;
+  Value& operator=(Value&& rhs) noexcept;
 
   Value& operator=(int8_t);
   Value& operator=(int16_t);
@@ -119,7 +134,7 @@ class Value {
   Type m_Type;
 
   union {
-    int8_t m_Byte;
+    int8_t m_Byte{};
     int16_t m_Short;
     int32_t m_Int;
     int64_t m_Long;
