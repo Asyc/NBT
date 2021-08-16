@@ -8,6 +8,11 @@
 
 namespace nbt {
 
+using ByteArray = std::vector<int8_t>;
+using IntArray = std::vector<int16_t>;
+using LongArray = std::vector<int32_t>;
+using String = std::string;
+
 enum class Type : int8_t {
   BYTE = 1,
   SHORT = 2,

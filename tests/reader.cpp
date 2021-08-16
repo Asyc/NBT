@@ -34,7 +34,7 @@ TEST(Nbt, Reader) {
   EXPECT_TRUE(strcmp(level["stringTest"].getString().c_str(), "HELLO WORLD THIS IS A TEST STRING \xc5\xc4\xd6!") == 0);
 
   {
-    auto& listLong = level["listTest (long)"].getList();
+    nbt::List& listLong = level["listTest (long)"].getList();
     int64_t expected = 11;
     for (const auto& value : listLong) {
       EXPECT_TRUE(value.getLong() == expected++);
@@ -46,7 +46,7 @@ TEST(Nbt, Reader) {
   EXPECT_TRUE(level["longTest"].getLong() == 9223372036854775807LL);
 
   {
-    auto& listCompound = level["listTest (compound)"].getList();
+    nbt::List& listCompound = level["listTest (compound)"].getList();
     size_t index = 0;
     for (auto& value : listCompound) {
       auto& elementCompound = value.getCompound();
@@ -57,7 +57,7 @@ TEST(Nbt, Reader) {
   }
 
   {
-    auto& byteArray = level["byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"].getByteArray();
+    nbt::ByteArray byteArray = level["byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"].getByteArray();
     for (size_t n = 0; n < 1000; n++) {
       EXPECT_TRUE(byteArray[n] == (n*n*255+n*7)%100);
     }
