@@ -323,6 +323,12 @@ Value& Compound::operator[](const char* key) {
   return m_Values[key];
 }
 
+const Value* Compound::operator[](const char* key) const {
+  auto it = m_Values.find(key);
+  if (it == m_Values.end()) return nullptr;
+  return &it->second;
+}
+
 bool Compound::hasKey(const char* key) const {
   return m_Values.find(key) != m_Values.end();
 }
@@ -332,6 +338,26 @@ bool Compound::remove(const char* key) {
   if (it == m_Values.end()) return false;
   m_Values.erase(it);
   return true;
+}
+
+Compound::Iterator Compound::begin() {
+  return m_Values.begin();
+}
+
+Compound::ConstIterator Compound::begin() const {
+  return m_Values.begin();
+}
+
+Compound::Iterator Compound::end() {
+  return m_Values.end();
+}
+
+Compound::ConstIterator Compound::end() const {
+  return m_Values.end();
+}
+
+size_t Compound::size() const {
+  return m_Values.size();
 }
 
 Value& List::operator[](size_t index) {

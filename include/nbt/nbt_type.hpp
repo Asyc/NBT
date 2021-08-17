@@ -32,10 +32,22 @@ class Value;
 
 class Compound {
  public:
+  using Iterator = std::unordered_map<std::string, Value>::iterator;
+  using ConstIterator = std::unordered_map<std::string, Value>::const_iterator;
+
   Value& operator[](const char*);
+  const Value* operator[](const char*) const;
 
   bool hasKey(const char*) const;
   bool remove(const char*);
+
+  Iterator begin();
+  [[nodiscard]] ConstIterator begin() const;
+
+  Iterator end();
+  [[nodiscard]] ConstIterator end() const;
+
+  [[nodiscard]] size_t size() const;
  private:
   std::unordered_map<std::string, Value> m_Values;
 };
