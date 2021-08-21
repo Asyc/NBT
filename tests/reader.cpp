@@ -4,8 +4,6 @@
 
 #include "nbt/nbt.hpp"
 
-
-
 TEST(Nbt, Reader) {
   auto binary = std::ifstream("read_test.nbt", std::ios_base::binary);
 
