@@ -10,7 +10,6 @@
 
 #elif defined(__APPLE__)
 
-// Mac OS X / Darwin features
 #include <libkern/OSByteOrder.h>
 #define bswap_32(x) OSSwapInt32(x)
 #define bswap_64(x) OSSwapInt64(x)

@@ -3,11 +3,15 @@
 
 #include "nbt_type.hpp"
 
+#include <ostream>
+
 namespace nbt {
 
 class Reader {
  public:
-  static Compound parse(const void* data, size_t length, bool inlineRootTag = true);
+  static Compound parse(const void* data, size_t length);
+
+  static Compound parse(std::istream& in);
 };
 
 }

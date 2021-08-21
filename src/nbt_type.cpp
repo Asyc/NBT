@@ -176,13 +176,13 @@ Value& Value::operator=(std::vector<int8_t> value) {
 }
 
 Value& Value::operator=(std::vector<int32_t> value) {
-  setType(Type::INT);
+  setType(Type::INT_ARRAY);
   new(&m_IntArray) std::vector<int32_t>(std::move(value));
   return *this;
 }
 
 Value& Value::operator=(std::vector<int64_t> value) {
-  setType(Type::LONG);
+  setType(Type::LONG_ARRAY);
   new(&m_LongArray) std::vector<int64_t>(std::move(value));
   return *this;
 }
@@ -329,6 +329,10 @@ const Value* Compound::operator[](const char* key) const {
   return &it->second;
 }
 
+void Compound::insert(std::string key, Value value) {
+  m_Values[std::move(key)] = std::move(value);
+}
+
 bool Compound::hasKey(const char* key) const {
   return m_Values.find(key) != m_Values.end();
 }
@@ -390,6 +394,15 @@ List::ConstIterator List::end() const {
 
 size_t List::size() const {
   return m_Values.size();
+}
+
+void List::setType(Type type) {
+  m_Type = type;
+  m_Values.clear();
+}
+
+Type List::getType() const {
+  return m_Type;
 }
 
 }

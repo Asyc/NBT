@@ -4,18 +4,13 @@
 
 #include "nbt/nbt.hpp"
 
-std::vector<char> getTestBinary() {
-  std::ifstream stream("read_test.nbt", std::ios_base::binary | std::ios_base::ate);
-  auto position = stream.tellg();
-  stream.seekg(0);
-  std::vector<char> buffer(position);
-  stream.read(buffer.data(), position);
-  return std::move(buffer);
-}
+
 
 TEST(Nbt, Reader) {
-  auto binary = getTestBinary();
-  nbt::Compound compound = nbt::Reader::parse(binary.data(), binary.size(), false);
+  auto binary = std::ifstream("read_test.nbt", std::ios_base::binary);
+
+  ASSERT_TRUE((binary.is_open()));
+  nbt::Compound compound = nbt::Reader::parse(binary);
 
   auto& level = compound["Level"].getCompound();
 

@@ -38,6 +38,8 @@ class Compound {
   Value& operator[](const char*);
   const Value* operator[](const char*) const;
 
+  void insert(std::string key, Value value);
+
   bool hasKey(const char*) const;
   bool remove(const char*);
 
@@ -62,6 +64,8 @@ class List {
 
   void pushBack(Value value);
 
+  void setType(Type type);
+
   template <typename T>
   void emplaceBack(T&& value) {
     m_Values.template emplace_back(std::forward<T>(value));
@@ -73,6 +77,7 @@ class List {
   Iterator end();
   [[nodiscard]] ConstIterator end() const;
 
+  [[nodiscard]] Type getType() const;
   [[nodiscard]] size_t size() const;
  private:
   Type m_Type;
@@ -151,7 +156,7 @@ class Value {
   Type m_Type;
 
   union {
-    int8_t m_Byte{};
+    int8_t m_Byte;
     int16_t m_Short;
     int32_t m_Int;
     int64_t m_Long;

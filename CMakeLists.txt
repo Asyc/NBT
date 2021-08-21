@@ -6,8 +6,8 @@ project(NBT)
 #--------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 17)
 
-set(HEADERS include/nbt/nbt.hpp include/nbt/nbt_type.hpp include/nbt/nbt_reader.hpp include/nbt/nbt_writer.hpp)
-set(SOURCES src/nbt_type.cpp src/nbt_reader.cpp src/byteswap.hpp)
+set(HEADERS include/nbt/nbt.hpp include/nbt/nbt_type.hpp include/nbt/nbt_reader.hpp include/nbt/nbt_writer.hpp src/primitive.hpp src/modified_utf.hpp)
+set(SOURCES src/nbt_type.cpp src/nbt_reader.cpp src/byteswap.hpp src/nbt_writer.cpp)
 
 add_library(NBT ${HEADERS} ${SOURCES})
 
