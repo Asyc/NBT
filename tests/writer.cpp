@@ -7,7 +7,7 @@
 
 extern void inputTest(nbt::Compound& compound);
 
-TEST(Nbt, Writer) {
+TEST(Nbt, Writer) { //NOLINT
   nbt::Compound testCompound;
 
   nbt::Compound level;
@@ -78,3 +78,4 @@ TEST(Nbt, Writer) {
   auto parsed = nbt::Reader::parse(stream);
   inputTest(parsed);
 }
+#pragma clang diagnostic pop

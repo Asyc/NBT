@@ -54,7 +54,7 @@ void inputTest(nbt::Compound& compound) {
   EXPECT_TRUE(level["shortTest"].getShort() == 32767);
 }
 
-TEST(Nbt, Reader) {
+TEST(Nbt, Reader) { //NOLINT
   auto binary = std::ifstream("read_test.nbt", std::ios_base::binary);
   ASSERT_TRUE(binary.is_open());
   auto value = nbt::Reader::parse(binary);
