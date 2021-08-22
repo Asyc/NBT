@@ -17,6 +17,7 @@ size_t getListSize(const List& list);
 size_t getValueSize(const Value& value);
 
 void Writer::serializeTo(std::ostream& out, const Compound& compound, const std::string_view& name) {
+  out << Type::COMPOUND;
   out << name;
   out << compound;
 }
@@ -38,17 +39,20 @@ std::ostream& operator<<(std::ostream& out, const std::string_view& string) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Compound& compound) {
-  out << Type::COMPOUND;
   for (const auto& pair : compound) {
+    if (pair.second.getType() == static_cast<Type>(0)) continue;  // NULL-Pair
     out << pair.second.getType();
     out << std::string_view(pair.first);
     out << pair.second;
   }
+
+  Type type = static_cast<Type>(0); //TAG_END
+  out << type;
+
   return out;
 }
 
 std::ostream& operator<<(std::ostream& out, const List& list) {
-  out << Type::LIST;
   out << list.getType();
   Primitive<int32_t>::writeTo(out, static_cast<int32_t>(list.size()));
   for (const auto& element : list) {

@@ -9,7 +9,50 @@
 namespace nbt::utf {
 
 inline void writeUTF(std::ostream& out, const std::string_view& string) {
+  auto strlen = static_cast<uint16_t>(string.length());
 
+  int utflen = 0;
+  int c, count = 0;
+
+  /* use charAt instead of copying String to char array */
+  for (int i = 0; i < strlen; i++) {
+    c = static_cast<uint8_t>(string[i]);
+    if ((c >= 0x0001) && (c <= 0x007F)) {
+      utflen++;
+    } else if (c > 0x07FF) {
+      utflen += 3;
+    } else {
+      utflen += 2;
+    }
+  }
+
+  if (utflen > 65535) throw std::runtime_error("encoded string too long");
+  Primitive<uint16_t>::writeTo(out, utflen);
+
+  auto bytearr = std::make_unique<char[]>(utflen);
+
+  int i=0;
+  for (i=0; i<strlen; i++) {
+    c = static_cast<uint8_t>(string[i]);
+    if (!((c >= 0x0001) && (c <= 0x007F))) break;
+    bytearr[count++] = static_cast<char>(c);
+  }
+
+  for (;i < strlen; i++){
+    c = static_cast<uint8_t>(string[i]);
+    if ((c >= 0x0001) && (c <= 0x007F)) {
+      bytearr[count++] = static_cast<char>(c);
+
+    } else if (c > 0x07FF) {
+      bytearr[count++] = static_cast<char>((0xE0 | (( c >> 12) & 0x0F)));
+      bytearr[count++] = static_cast<char>((0x80 | ((c >>  6) & 0x3F)));
+      bytearr[count++] = static_cast<char>((0x80 | ((c >>  0) & 0x3F)));
+    } else {
+      bytearr[count++] = static_cast<char>((0xC0 | ((c >>  6) & 0x1F)));
+      bytearr[count++] = static_cast<char>((0x80 | ((c >>  0) & 0x3F)));
+    }
+  }
+  out.write(bytearr.get(), utflen);
 }
 
 inline size_t getByteLength(const std::string_view& string) {

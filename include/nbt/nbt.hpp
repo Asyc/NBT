@@ -11,5 +11,6 @@ static_assert(sizeof(double) == 8);
 
 #include "nbt_reader.hpp"
 #include "nbt_type.hpp"
+#include "nbt_writer.hpp"
 
 #endif //NBT_INCLUDE_NBT_NBT_HPP_

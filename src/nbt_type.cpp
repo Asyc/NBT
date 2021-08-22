@@ -81,6 +81,8 @@ Value& Value::operator=(Value&& rhs) noexcept {
   return *this;
 }
 
+Value::Value() : m_Type(static_cast<Type>(0)) {}
+
 Value::Value(int8_t value) {
   operator=(value);
 }
@@ -362,6 +364,10 @@ Compound::ConstIterator Compound::end() const {
 
 size_t Compound::size() const {
   return m_Values.size();
+}
+
+List::List(Type type) : m_Type(type) {
+
 }
 
 Value& List::operator[](size_t index) {

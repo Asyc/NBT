@@ -4,12 +4,7 @@
 
 #include "nbt/nbt.hpp"
 
-TEST(Nbt, Reader) {
-  auto binary = std::ifstream("read_test.nbt", std::ios_base::binary);
-
-  ASSERT_TRUE((binary.is_open()));
-  nbt::Compound compound = nbt::Reader::parse(binary);
-
+void inputTest(nbt::Compound& compound) {
   auto& level = compound["Level"].getCompound();
 
   {
@@ -57,4 +52,11 @@ TEST(Nbt, Reader) {
   }
 
   EXPECT_TRUE(level["shortTest"].getShort() == 32767);
+}
+
+TEST(Nbt, Reader) {
+  auto binary = std::ifstream("read_test.nbt", std::ios_base::binary);
+  ASSERT_TRUE(binary.is_open());
+  auto value = nbt::Reader::parse(binary);
+  inputTest(value);
 }

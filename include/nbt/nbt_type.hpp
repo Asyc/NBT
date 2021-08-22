@@ -59,6 +59,9 @@ class List {
   using Iterator = std::vector<Value>::iterator;
   using ConstIterator = std::vector<Value>::const_iterator;
 
+  List() {}
+  List(Type);
+
   Value& operator[](size_t index);
   const Value& operator[](size_t index) const;
 
@@ -68,7 +71,7 @@ class List {
 
   template <typename T>
   void emplaceBack(T&& value) {
-    m_Values.template emplace_back(std::forward<T>(value));
+    m_Values.emplace_back(std::forward<T>(value));
   }
 
   Iterator begin();
@@ -86,7 +89,7 @@ class List {
 
 class Value {
  public:
-  Value() {}
+  Value();
   Value(Value&& rhs) noexcept;
   Value(const Value& rhs) noexcept;
 
@@ -122,6 +125,11 @@ class Value {
   Value& operator=(std::string string);
   Value& operator=(Compound compound);
   Value& operator=(List list);
+
+  template <typename T>
+  void set(T value) {
+    operator=(std::move(value));
+  }
 
   [[nodiscard]] Type getType() const;
 

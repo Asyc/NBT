@@ -97,11 +97,14 @@ Value readValue(Type type, std::istream& in) {
     case Type::LIST: {
       Type listType;
       in >> listType;
+      if (static_cast<Type>(0) == listType) {
+        nbtValue = List();
+        break;
+      }
 
       auto arrayLength = Primitive<int32_t>::readFrom(in);
 
-      List list;
-      list.setType(listType);
+      List list(listType);
 
       for (int32_t i = 0; i < arrayLength; i++) {
         list.pushBack(readValue(listType, in));

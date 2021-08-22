@@ -25,7 +25,7 @@ endif ()
 #--------------------------------------------------------------------
 enable_testing()
 
-set(SOURCES reader.cpp)
+set(SOURCES reader.cpp writer.cpp)
 add_executable(nbt_test ${SOURCES})
 
 target_link_libraries(nbt_test NBT ${NBT_GTEST_LIB})
