@@ -10,10 +10,10 @@ namespace nbt {
 
 class Writer {
  public:
-  static void serializeTo(std::ostream& out, const Compound& compound, const std::string_view& name = "");
-  static std::vector<char> serialize(const Compound& compound);
+  static void write(std::ostream& out, const Compound& compound, const std::string_view& name = "");
+  static std::vector<char> writeToBuffer(const Compound& compound, const std::string_view& key = "");
 };
 
-}
+} // namespace nbt
 
 #endif //NBT_INCLUDE_NBT_NBT_WRITER_HPP_

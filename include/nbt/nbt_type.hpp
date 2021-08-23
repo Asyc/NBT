@@ -35,10 +35,12 @@ class Compound {
   using Iterator = std::unordered_map<std::string, Value>::iterator;
   using ConstIterator = std::unordered_map<std::string, Value>::const_iterator;
 
+  bool operator==(const Compound& rhs) const;
   Value& operator[](const char*);
-  const Value* operator[](const char*) const;
 
   void insert(std::string key, Value value);
+
+  const Value* get(const char*) const;
 
   bool hasKey(const char*) const;
   bool remove(const char*);
@@ -62,6 +64,7 @@ class List {
   List() {}
   List(Type);
 
+  bool operator==(const List& rhs) const;
   Value& operator[](size_t index);
   const Value& operator[](size_t index) const;
 
@@ -126,6 +129,8 @@ class Value {
   Value& operator=(Compound compound);
   Value& operator=(List list);
 
+  bool operator==(const Value& rhs) const;
+
   template <typename T>
   void set(T value) {
     operator=(std::move(value));
@@ -182,6 +187,6 @@ class Value {
   };
 };
 
-}
+} // namespace nbt
 
 #endif //NBT_INCLUDE_NBT_NBT_TYPE_HPP_

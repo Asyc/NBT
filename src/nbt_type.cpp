@@ -11,11 +11,11 @@ inline void typeCheck(Type type) {
   }
 }
 
-Value::Value(Value&& rhs) noexcept : m_Type(Type::BYTE) {
+Value::Value(Value&& rhs) noexcept: m_Type(Type::BYTE) {
   operator=(std::move(rhs));
 }
 
-Value::Value(const Value& rhs) noexcept : m_Type(Type::BYTE) {
+Value::Value(const Value& rhs) noexcept: m_Type(Type::BYTE) {
   operator=(rhs);
 }
 
@@ -23,29 +23,29 @@ Value& Value::operator=(const Value& rhs) noexcept {
   if (this == &rhs) return *this;
   switch (rhs.m_Type) {
     case Type::BYTE:operator=(rhs.m_Byte);
-    break;
+      break;
     case Type::SHORT:operator=(rhs.m_Short);
-    break;
+      break;
     case Type::INT:operator=(rhs.m_Int);
-    break;
+      break;
     case Type::LONG:operator=(rhs.m_Long);
-    break;
+      break;
     case Type::FLOAT:operator=(rhs.m_Float);
-    break;
+      break;
     case Type::DOUBLE:operator=(rhs.m_Double);
-    break;
+      break;
     case Type::BYTE_ARRAY:operator=(rhs.m_ByteArray);
-    break;
+      break;
     case Type::STRING:operator=(rhs.m_String);
-    break;
+      break;
     case Type::LIST:operator=(rhs.m_List);
-    break;
+      break;
     case Type::COMPOUND:operator=(rhs.m_Compound);
-    break;
+      break;
     case Type::INT_ARRAY:operator=(rhs.m_IntArray);
-    break;
+      break;
     case Type::LONG_ARRAY:operator=(rhs.m_LongArray);
-    break;
+      break;
   }
   return *this;
 }
@@ -54,29 +54,29 @@ Value& Value::operator=(Value&& rhs) noexcept {
   if (this == &rhs) return *this;
   switch (rhs.m_Type) {
     case Type::BYTE:operator=(rhs.m_Byte);
-    break;
+      break;
     case Type::SHORT:operator=(rhs.m_Short);
-    break;
+      break;
     case Type::INT:operator=(rhs.m_Int);
-    break;
+      break;
     case Type::LONG:operator=(rhs.m_Long);
-    break;
+      break;
     case Type::FLOAT:operator=(rhs.m_Float);
-    break;
+      break;
     case Type::DOUBLE:operator=(rhs.m_Double);
-    break;
+      break;
     case Type::BYTE_ARRAY:operator=(std::move(rhs.m_ByteArray));
-    break;
+      break;
     case Type::STRING:operator=(std::move(rhs.m_String));
-    break;
+      break;
     case Type::LIST:operator=(std::move(rhs.m_List));
-    break;
+      break;
     case Type::COMPOUND:operator=(std::move(rhs.m_Compound));
-    break;
+      break;
     case Type::INT_ARRAY:operator=(std::move(rhs.m_IntArray));
-    break;
+      break;
     case Type::LONG_ARRAY:operator=(std::move(rhs.m_LongArray));
-    break;
+      break;
   }
   return *this;
 }
@@ -207,6 +207,27 @@ Value& Value::operator=(List value) {
   return *this;
 }
 
+bool Value::operator==(const Value& rhs) const {
+  if (this == &rhs) return true;
+  if (m_Type != rhs.m_Type) return false;
+  switch (m_Type) {
+    case Type::BYTE:return m_Byte == rhs.m_Byte;
+    case Type::SHORT:return m_Short == rhs.m_Short;
+    case Type::INT:return m_Int == rhs.m_Int;
+    case Type::LONG:return m_Long == rhs.m_Long;
+    case Type::FLOAT:return m_Float == rhs.m_Float;
+    case Type::DOUBLE:return m_Double == rhs.m_Double;
+    case Type::BYTE_ARRAY:return m_ByteArray == rhs.m_ByteArray;
+    case Type::STRING:return m_String == rhs.m_String;
+    case Type::LIST:return m_List == rhs.m_List;
+    case Type::COMPOUND:return m_Compound == rhs.m_Compound;
+    case Type::INT_ARRAY:return m_IntArray == rhs.m_IntArray;
+    case Type::LONG_ARRAY:return m_LongArray == rhs.m_LongArray;
+    default:
+      throw std::runtime_error("invalid nbt type");
+  }
+}
+
 void Value::setType(Type type) {
   switch (m_Type) {
     case Type::BYTE_ARRAY:m_ByteArray.~vector();
@@ -321,11 +342,15 @@ const List& Value::getList() const {
   return m_List;
 }
 
+bool Compound::operator==(const Compound& rhs) const {
+  return m_Values == rhs.m_Values;
+}
+
 Value& Compound::operator[](const char* key) {
   return m_Values[key];
 }
 
-const Value* Compound::operator[](const char* key) const {
+const Value* Compound::get(const char* key) const {
   auto it = m_Values.find(key);
   if (it == m_Values.end()) return nullptr;
   return &it->second;
@@ -370,6 +395,12 @@ List::List(Type type) : m_Type(type) {
 
 }
 
+bool List::operator==(const List& rhs) const {
+  if (this == &rhs) return true;
+  // Deep Comparison
+  return m_Values == rhs.m_Values;
+}
+
 Value& List::operator[](size_t index) {
   return m_Values[index];
 }
@@ -411,4 +442,4 @@ Type List::getType() const {
   return m_Type;
 }
 
-}
+} // namespace nbt

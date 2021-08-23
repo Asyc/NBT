@@ -11,9 +11,9 @@ class Reader {
  public:
   static Compound parse(const void* data, size_t length);
 
-  static Compound parse(std::istream& in);
+  static Compound read(std::istream& in);
 };
 
-}
+} // namespace nbt
 
 #endif //NBT_INCLUDE_NBT_NBT_READER_HPP_

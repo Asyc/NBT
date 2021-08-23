@@ -1,8 +1,8 @@
 #include "nbt/nbt_writer.hpp"
 
 #include "byteswap.hpp"
-#include "primitive.hpp"
 #include "modified_utf.hpp"
+#include "nbt/nbt.hpp"
 
 namespace nbt {
 
@@ -16,15 +16,43 @@ size_t getCompoundSize(const Compound& compound);
 size_t getListSize(const List& list);
 size_t getValueSize(const Value& value);
 
-void Writer::serializeTo(std::ostream& out, const Compound& compound, const std::string_view& name) {
+void Writer::write(std::ostream& out, const Compound& compound, const std::string_view& name) {
+  if constexpr (nbt::config::writeRootTag()) {  //NOLINT
+    out << Type::COMPOUND;
+    out << std::string_view("");
+  }
+
+
   out << Type::COMPOUND;
   out << name;
   out << compound;
+
+  out << static_cast<Type>(0);
 }
 
-std::vector<char> Writer::serialize(const Compound& compound) {
-  std::vector<char> buffer(getCompoundSize(compound));
-  return std::move(buffer);
+class OutputVectorBuffer : public std::streambuf {
+ public:
+  OutputVectorBuffer(size_t startingSize) : m_CurrentIndex(0) { m_Buffer.resize(startingSize); }
+
+  std::vector<char> moveBuffer() && { return std::move(m_Buffer); }
+ protected:
+  std::streamsize xsputn(const char* data, std::streamsize length) override {
+    memcpy(m_Buffer.data() + m_CurrentIndex, data, length);
+    m_CurrentIndex += length;
+    return length;
+  }
+ private:
+  std::vector<char> m_Buffer;
+  size_t m_CurrentIndex;
+};
+
+std::vector<char> Writer::writeToBuffer(const Compound& compound, const std::string_view& key) {
+  OutputVectorBuffer out(getCompoundSize(compound));
+  std::ostream stream(&out);
+  write(stream, compound, key);
+  out.pubsync();
+
+  return std::move(out).moveBuffer();
 }
 
 std::ostream& operator<<(std::ostream& out, Type type) {
@@ -63,41 +91,29 @@ std::ostream& operator<<(std::ostream& out, const List& list) {
 
 std::ostream& operator<<(std::ostream& out, const Value& value) {
   switch (value.getType()) {
-    case Type::BYTE:
-      Primitive<int8_t>::writeTo(out, value.getByte());
+    case Type::BYTE:Primitive<int8_t>::writeTo(out, value.getByte());
       break;
-    case Type::SHORT:
-      Primitive<int16_t>::writeTo(out, value.getShort());
+    case Type::SHORT:Primitive<int16_t>::writeTo(out, value.getShort());
       break;
-    case Type::INT:
-      Primitive<int32_t>::writeTo(out, value.getInt());
+    case Type::INT:Primitive<int32_t>::writeTo(out, value.getInt());
       break;
-    case Type::LONG:
-      Primitive<int64_t>::writeTo(out, value.getLong());
+    case Type::LONG:Primitive<int64_t>::writeTo(out, value.getLong());
       break;
-    case Type::FLOAT:
-      Primitive<float>::writeTo(out, value.getFloat());
+    case Type::FLOAT:Primitive<float>::writeTo(out, value.getFloat());
       break;
-    case Type::DOUBLE:
-      Primitive<double>::writeTo(out, value.getDouble());
+    case Type::DOUBLE:Primitive<double>::writeTo(out, value.getDouble());
       break;
-    case Type::BYTE_ARRAY:
-      Array<int8_t>::writeTo(out, value.getByteArray().data(), value.getByteArray().size());
+    case Type::BYTE_ARRAY:Array<int8_t>::writeTo(out, value.getByteArray().data(), value.getByteArray().size());
       break;
-    case Type::STRING:
-      utf::writeUTF(out, value.getString());
+    case Type::STRING:utf::writeUTF(out, value.getString());
       break;
-    case Type::LIST:
-      out << value.getList();
+    case Type::LIST:out << value.getList();
       break;
-    case Type::COMPOUND:
-      out << value.getCompound();
+    case Type::COMPOUND:out << value.getCompound();
       break;
-    case Type::INT_ARRAY:
-      Array<int32_t>::writeTo(out, value.getIntArray().data(), value.getIntArray().size());
+    case Type::INT_ARRAY:Array<int32_t>::writeTo(out, value.getIntArray().data(), value.getIntArray().size());
       break;
-    case Type::LONG_ARRAY:
-      Array<int64_t>::writeTo(out, value.getLongArray().data(), value.getLongArray().size());
+    case Type::LONG_ARRAY:Array<int64_t>::writeTo(out, value.getLongArray().data(), value.getLongArray().size());
       break;
   }
   return out;
@@ -117,6 +133,8 @@ size_t getValueSize(const Value& value) {
     case Type::STRING: return utf::getByteLength(value.getString());
     case Type::LIST: return getListSize(value.getList());
     case Type::COMPOUND: return getCompoundSize(value.getCompound());
+    default:
+      throw std::runtime_error("invalid nbt type");
   }
 }
 
@@ -138,4 +156,4 @@ size_t getListSize(const List& list) {
   return totalSize;
 }
 
-}
+} // namespace nbt

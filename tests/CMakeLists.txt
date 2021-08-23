@@ -25,10 +25,11 @@ endif ()
 #--------------------------------------------------------------------
 enable_testing()
 
-set(SOURCES reader.cpp writer.cpp)
+set(SOURCES reader.cpp writer.cpp test.hpp conf/nbt.tweaks.hpp)
 add_executable(nbt_test ${SOURCES})
 
 target_link_libraries(nbt_test NBT ${NBT_GTEST_LIB})
+target_include_directories(nbt_test PUBLIC conf)
 
 add_test(
         NAME nbt_test

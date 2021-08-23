@@ -5,6 +5,7 @@
 #include <ostream>
 
 #include "byteswap.hpp"
+#include "primitive.hpp"
 
 namespace nbt::utf {
 
@@ -76,10 +77,12 @@ inline std::string readUTF(std::istream& in) {
   in.read(reinterpret_cast<char*>(&utflen), sizeof(utflen));
   utflen = hostToNetwork16(utflen);
 
-  auto buffer = std::make_unique<char[]>(utflen);
-  in.read(buffer.get(), utflen);
+  auto allocation = std::make_unique<char[]>(utflen * 2 + 1);
 
-  std::string output(utflen + 1, '\0');
+  char* buffer = allocation.get();
+  char* output = allocation.get() + utflen;
+
+  in.read(buffer, utflen);
 
   int c, char2, char3;
   int count = 0;
@@ -129,10 +132,9 @@ inline std::string readUTF(std::istream& in) {
     }
   }
 
-  output[output.size() - 1] = '\0';
-  return std::move(output);
+  return {output, static_cast<size_t>(chararr_count)};
 }
 
-}
+} // namespace nbt
 
 #endif //NBT_SRC_MODIFIED_UTF_HPP_

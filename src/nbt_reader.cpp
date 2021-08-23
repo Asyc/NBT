@@ -5,28 +5,29 @@
 #include "byteswap.hpp"
 #include "primitive.hpp"
 #include "modified_utf.hpp"
+#include "nbt/nbt.hpp"
 
 #include <sstream>
 
 namespace nbt {
 
- class PointerInputBuffer : public std::basic_streambuf<char> {
-  public:
-   PointerInputBuffer(const char* data, size_t length) {
-     char* dataBuffer = const_cast<char*>(data);
-     setg(dataBuffer, dataBuffer, dataBuffer + length);
-   }
- };
+class PointerInputBuffer : public std::basic_streambuf<char> {
+ public:
+  PointerInputBuffer(const char* data, size_t length) {
+    char* dataBuffer = const_cast<char*>(data);
+    setg(dataBuffer, dataBuffer, dataBuffer + length);
+  }
+};
 
 void readNextPair(Compound& compound, std::istream& in);
 
 Compound Reader::parse(const void* data, size_t length) {
   PointerInputBuffer streamBuf(reinterpret_cast<const char*>(data), length);
   std::istream in(&streamBuf);
-  return parse(in);
+  return read(in);
 }
 
-Compound Reader::parse(std::istream& in) {
+Compound Reader::read(std::istream& in) {
   Compound compound;
   while (!in.eof()) {
     int peek = in.peek();
@@ -35,6 +36,11 @@ Compound Reader::parse(std::istream& in) {
 
     readNextPair(compound, in);
   }
+
+  if constexpr (nbt::config::omitRootTag()) { //NOLINT
+    if (compound.size() == 1 && compound.hasKey("")) return std::move(compound[""].getCompound());
+  }
+
   return std::move(compound);
 }
 
@@ -125,8 +131,7 @@ Value readValue(Type type, std::istream& in) {
       nbtValue = std::move(elementCompound);
       break;
     }
-    default:
-      throw std::runtime_error("invalid nbt type");
+    default:throw std::runtime_error("invalid nbt type");
   }
 
   return std::move(nbtValue);
@@ -143,4 +148,4 @@ void readNextPair(Compound& compound, std::istream& in) {
   compound.insert(std::move(key), std::move(value));
 }
 
-}
+} // namespace nbt
