@@ -34,9 +34,16 @@ class OutputVectorBuffer : public std::streambuf {
  public:
   OutputVectorBuffer(size_t startingSize) : m_CurrentIndex(0) { m_Buffer.resize(startingSize); }
 
-  std::vector<char> moveBuffer() && { return std::move(m_Buffer); }
+  std::vector<char> moveBuffer() && { 
+    m_Buffer.resize(m_CurrentIndex);
+    return std::move(m_Buffer);
+  }
+  
  protected:
   std::streamsize xsputn(const char* data, std::streamsize length) override {
+    if (m_Buffer.size() - m_CurrentIndex <= length) {
+      m_Buffer.resize(m_Buffer.size() * 2);
+    }
     memcpy(m_Buffer.data() + m_CurrentIndex, data, length);
     m_CurrentIndex += length;
     return length;

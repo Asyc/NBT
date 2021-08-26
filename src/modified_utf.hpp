@@ -57,9 +57,13 @@ inline void writeUTF(std::ostream& out, const std::string_view& string) {
 }
 
 inline size_t getByteLength(const std::string_view& string) {
-  size_t utflen = 0;
-  for (char character : string) {
-    int c = static_cast<uint16_t>(character);
+  auto strlen = static_cast<uint16_t>(string.length());
+
+  int utflen = 0;
+  int c, count = 0;
+
+  for (int i = 0; i < strlen; i++) {
+    c = static_cast<uint8_t>(string[i]);
     if ((c >= 0x0001) && (c <= 0x007F)) {
       utflen++;
     } else if (c > 0x07FF) {
@@ -69,7 +73,7 @@ inline size_t getByteLength(const std::string_view& string) {
     }
   }
 
-  return utflen + sizeof(uint16_t);
+  return utflen + Primitive<uint16_t>::getSize();
 }
 
 inline std::string readUTF(std::istream& in) {
